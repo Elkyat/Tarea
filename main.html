@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta con Validación</title>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta con Validación</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .pregunta {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        
+        .pregunta h3 {
+            color: #555;
+            margin-bottom: 15px;
+        }
+        
+        .opciones {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .opcion {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .opcion:hover {
+            background-color: #e9ecef;
+            border-color: #007bff;
+        }
+        
+        .opcion.seleccionada {
+            background-color: #007bff;
+            color: white;
+            border-color: #0056b3;
+        }
+        
+        .opcion.invalida {
+            background-color: #dc3545;
+            color: white;
+            border-color: #c82333;
+        }
+        
+        .input-respuesta {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .input-respuesta.error {
+            border-color: #dc3545;
+            background-color: #fff5f5;
+        }
+        
+        .mensaje-error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .mensaje-exito {
+            color: #28a745;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .botones {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #1e7e34;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        
+        .estadisticas {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .estadisticas h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .resumen {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .detalle-pregunta {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+        }
+        
+        .detalle-pregunta h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .distribucion {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+        
+        .opcion-stat {
+            text-align: center;
+        }
+        
+        .opcion-stat .numero {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .opcion-stat .porcentaje {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .progreso {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .barra-progreso {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progreso-fill {
+            height: 100%;
+            background-color: #007bff;
+            transition: width 0.3s;
+        }
+        
+        .instrucciones {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .instrucciones h3 {
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+        
+        .instrucciones ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .instrucciones li {
+            color: #0c5460;
+            margin-bottom: 5px;
+        }
+        
+        .login-form {
+            text-align: center;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .login-form h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .input-nombre {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .input-nombre:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0,123,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Encuesta con Validación</h1>
+        
+        <div class="instrucciones">
+            <h3>📋 Instrucciones:</h3>
+            <ul>
+                <li>Responde las 3 preguntas seleccionando una opción (A, B, C, D)</li>
+                <li>Puedes escribir la letra o hacer clic en la opción</li>
+                <li>Si ingresas una opción inválida, se registrará como error pero continuarás</li>
+                <li>Cada encuestado debe ingresar su nombre antes de comenzar</li>
+                <li>La encuesta se realizará para 10 encuestados</li>
+            </ul>
+        </div>
+        
+        <div id="login-container">
+        <div class="login-form">
+        <h3>👤 Ingresa tu nombre para comenzar</h3>
+        <input type="text" id="nombre-input" placeholder="Escribe tu nombre completo" class="input-nombre" onkeypress="if(event.key==='Enter') iniciarEncuesta()">
+        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 10px;">
+            <button class="btn-primary" onclick="iniciarEncuesta()">Comenzar Encuesta</button>
+            <button class="btn-success" onclick="toggleEstadisticas()">Ver Estadísticas</button>
+        </div>
+        <div class="mensaje-error" id="error-nombre" style="display: none;">
+            ❌ Por favor ingresa tu nombre para continuar
+        </div>
+        </div>
+        </div>
+
+        <div id="encuesta-container" style="display: none;">
+            <div class="progreso">
+                <h3>Encuestado: <span id="nombre-actual"></span> (#<span id="encuestado-actual">1</span> de 10)</h3>
+                <div class="barra-progreso">
+                    <div class="progreso-fill" id="progreso-fill" style="width: 0%"></div>
+                </div>
+                <p>Progreso: <span id="progreso-texto">0%</span></p>
+            </div>
+            
+            <div id="preguntas-container">
+                <!-- Las preguntas se generarán dinámicamente -->
+            </div>
+            
+            <div class="botones">
+                <button class="btn-primary" onclick="siguienteEncuestado()">Siguiente Encuestado</button>
+                <button class="btn-success" onclick="verEstadisticas()">Ver Estadísticas</button>
+                <button class="btn-secondary" onclick="reiniciarEncuesta()">Reiniciar</button>
+            </div>
+        </div>
+        
+        <div id="estadisticas-container" class="estadisticas">
+            <h2>📈 Estadísticas Finales</h2>
+            <div id="resumen-estadisticas" class="resumen">
+                <!-- Las estadísticas se generarán dinámicamente -->
+            </div>
+            <div id="detalle-estadisticas">
+                <!-- El detalle por pregunta se generará dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos de la encuesta
+        const preguntas = [
+            {
+                id: 1,
+                texto: "¿Cuál es tu color favorito?",
+                opciones: {
+                    "A": "Azul",
+                    "B": "Rojo",
+                    "C": "Verde",
+                    "D": "Amarillo"
+                }
+            },
+            {
+                id: 2,
+                texto: "¿Cuál es tu comida preferida?",
+                opciones: {
+                    "A": "Pizza",
+                    "B": "Hamburguesa",
+                    "C": "Sushi",
+                    "D": "Pasta"
+                }
+            },
+            {
+                id: 3,
+                texto: "¿Cuál es tu actividad favorita?",
+                opciones: {
+                    "A": "Leer",
+                    "B": "Ver películas",
+                    "C": "Hacer deporte",
+                    "D": "Escuchar música"
+                }
+            }
+        ];
+
+        function toggleEstadisticas() {
+        const container = document.getElementById('estadisticas-container');
+        if (container.style.display === 'block') {
+            container.style.display = 'none';
+        } else {
+            verEstadisticas();
+        }
+    }
+
+        // Estado de la aplicación
+        let encuestadoActual = 1;
+        let respuestas = [];
+        let opcionesValidas = ["A", "B", "C", "D"];
+        let nombreActual = "";
+        let encuestados = []; // Array para guardar todos los encuestados con sus nombres
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            generarPreguntas();
+            // La encuesta se mostrará después de ingresar el nombre
+        });
+        
+        // Función para iniciar la encuesta con nombre
+        function iniciarEncuesta() {
+            const nombreInput = document.getElementById('nombre-input');
+            const errorDiv = document.getElementById('error-nombre');
+            const nombre = nombreInput.value.trim();
+            
+            if (!nombre) {
+                errorDiv.style.display = 'block';
+                nombreInput.focus();
+                return;
+            }
+            
+            // Ocultar error si existe
+            errorDiv.style.display = 'none';
+            
+            // Guardar nombre y mostrar encuesta
+            nombreActual = nombre;
+            document.getElementById('nombre-actual').textContent = nombre;
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('encuesta-container').style.display = 'block';
+            
+            // Actualizar progreso
+            actualizarProgreso();
+        }
+
+        // Generar las preguntas en el DOM
+        function generarPreguntas() {
+            const container = document.getElementById('preguntas-container');
+            container.innerHTML = '';
+
+            preguntas.forEach((pregunta, index) => {
+                const preguntaDiv = document.createElement('div');
+                preguntaDiv.className = 'pregunta';
+                preguntaDiv.innerHTML = `
+                    <h3>${pregunta.id}. ${pregunta.texto}</h3>
+                    <div class="opciones" id="opciones-${pregunta.id}">
+                        ${Object.entries(pregunta.opciones).map(([letra, texto]) => `
+                            <div class="opcion" data-letra="${letra}" onclick="seleccionarOpcion(${pregunta.id}, '${letra}')">
+                                <strong>${letra})</strong> ${texto}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <input type="text" class="input-respuesta" id="input-${pregunta.id}" 
+                           placeholder="Escribe A, B, C o D" maxlength="1" 
+                           onkeyup="validarEntrada(${pregunta.id}, this.value)">
+                    <div class="mensaje-error" id="error-${pregunta.id}">
+                        ❌ Por favor ingresa solo una letra válida (A, B, C, D)
+                    </div>
+                    <div class="mensaje-exito" id="exito-${pregunta.id}">
+                        ✅ Respuesta válida registrada
+                    </div>
+                `;
+                container.appendChild(preguntaDiv);
+            });
+        }
+
+        // Validar entrada del usuario
+        function validarEntrada(preguntaId, entrada) {
+            const input = document.getElementById(`input-${preguntaId}`);
+            const errorDiv = document.getElementById(`error-${preguntaId}`);
+            const exitoDiv = document.getElementById(`exito-${preguntaId}`);
+            const opciones = document.querySelectorAll(`#opciones-${preguntaId} .opcion`);
+
+            // Limpiar selecciones previas
+            opciones.forEach(opcion => {
+                opcion.classList.remove('seleccionada', 'invalida');
+            });
+
+            // Limpiar mensajes
+            errorDiv.style.display = 'none';
+            exitoDiv.style.display = 'none';
+            input.classList.remove('error');
+
+            if (!entrada) {
+                return;
+            }
+
+            const entradaLimpia = entrada.trim().toUpperCase();
+
+            if (opcionesValidas.includes(entradaLimpia)) {
+                // Entrada válida
+                input.classList.remove('error');
+                exitoDiv.style.display = 'block';
+                
+                // Resaltar opción seleccionada
+                const opcionSeleccionada = document.querySelector(`#opciones-${preguntaId} .opcion[data-letra="${entradaLimpia}"]`);
+                if (opcionSeleccionada) {
+                    opcionSeleccionada.classList.add('seleccionada');
+                }
+            } else {
+                // Entrada inválida
+                input.classList.add('error');
+                errorDiv.style.display = 'block';
+                
+                // Resaltar como inválida si es una letra
+                if (entradaLimpia.length === 1 && /[A-Z]/.test(entradaLimpia)) {
+                    const opcionInvalida = document.querySelector(`#opciones-${preguntaId} .opcion[data-letra="${entradaLimpia}"]`);
+                    if (opcionInvalida) {
+                        opcionInvalida.classList.add('invalida');
+                    }
+                }
+            }
+        }
+
+        // Seleccionar opción haciendo clic
+        function seleccionarOpcion(preguntaId, letra) {
+            const input = document.getElementById(`input-${preguntaId}`);
+            input.value = letra;
+            validarEntrada(preguntaId, letra);
+        }
+
+        // Obtener respuestas del encuestado actual
+        function obtenerRespuestasEncuestado() {
+            const respuestasEncuestado = [];
+            
+            preguntas.forEach(pregunta => {
+                const input = document.getElementById(`input-${pregunta.id}`);
+                const entrada = input.value.trim().toUpperCase();
+                const esValida = opcionesValidas.includes(entrada);
+                
+                respuestasEncuestado.push({
+                    encuestadoId: encuestadoActual,
+                    nombre: nombreActual,
+                    preguntaId: pregunta.id,
+                    respuestaIngresada: entrada || 'VACIO',
+                    esValida: esValida
+                });
+            });
+            
+            return respuestasEncuestado;
+        }
+
+        // Siguiente encuestado
+        function siguienteEncuestado() {
+            // Obtener respuestas del encuestado actual
+            const respuestasEncuestado = obtenerRespuestasEncuestado();
+            respuestas.push(...respuestasEncuestado);
+            
+            // Guardar encuestado con nombre
+            encuestados.push({
+                id: encuestadoActual,
+                nombre: nombreActual,
+                respuestas: respuestasEncuestado
+            });
+            
+            // Limpiar formulario
+            limpiarFormulario();
+            
+            // Incrementar contador
+            encuestadoActual++;
+            actualizarProgreso();
+            
+            // Verificar si se completó la encuesta
+            if (encuestadoActual > 10) {
+                document.getElementById('encuesta-container').style.display = 'none';
+                verEstadisticas();
+            } else {
+                // Preparar para el siguiente encuestado
+                prepararSiguienteEncuestado();
+            }
+        }
+        
+        // Preparar para el siguiente encuestado
+        function prepararSiguienteEncuestado() {
+            // Mostrar formulario de nombre para el siguiente encuestado
+            document.getElementById('encuesta-container').style.display = 'none';
+            document.getElementById('login-container').style.display = 'block';
+            document.getElementById('nombre-input').value = '';
+            document.getElementById('nombre-input').focus();
+        }
+
+        // Limpiar formulario
+        function limpiarFormulario() {
+            preguntas.forEach(pregunta => {
+                const input = document.getElementById(`input-${pregunta.id}`);
+                const errorDiv = document.getElementById(`error-${pregunta.id}`);
+                const exitoDiv = document.getElementById(`exito-${pregunta.id}`);
+                const opciones = document.querySelectorAll(`#opciones-${pregunta.id} .opcion`);
+                
+                input.value = '';
+                input.classList.remove('error');
+                errorDiv.style.display = 'none';
+                exitoDiv.style.display = 'none';
+                
+                opciones.forEach(opcion => {
+                    opcion.classList.remove('seleccionada', 'invalida');
+                });
+            });
+        }
+
+        // Actualizar barra de progreso
+        function actualizarProgreso() {
+            const progreso = ((encuestadoActual - 1) / 10) * 100;
+            document.getElementById('progreso-fill').style.width = progreso + '%';
+            document.getElementById('progreso-texto').textContent = Math.round(progreso) + '%';
+            document.getElementById('encuestado-actual').textContent = encuestadoActual;
+        }
+
+        // Calcular estadísticas
+        function calcularEstadisticas() {
+            const totalRespuestas = respuestas.length;
+            const respuestasValidas = respuestas.filter(r => r.esValida).length;
+            const respuestasInvalidas = totalRespuestas - respuestasValidas;
+            const porcentajeValidas = totalRespuestas > 0 ? (respuestasValidas / totalRespuestas) * 100 : 0;
+            
+            // Estadísticas por pregunta
+            const porPregunta = {};
+            preguntas.forEach(pregunta => {
+                const respuestasPregunta = respuestas.filter(r => r.preguntaId === pregunta.id);
+                const validas = respuestasPregunta.filter(r => r.esValida).length;
+                const invalidas = respuestasPregunta.length - validas;
+                
+                // Distribución de opciones válidas
+                const opciones = { A: 0, B: 0, C: 0, D: 0 };
+                respuestasPregunta.filter(r => r.esValida).forEach(r => {
+                    if (opciones.hasOwnProperty(r.respuestaIngresada)) {
+                        opciones[r.respuestaIngresada]++;
+                    }
+                });
+                
+                porPregunta[pregunta.id] = {
+                    validas: validas,
+                    invalidas: invalidas,
+                    opciones: opciones
+                };
+            });
+            
+            return {
+                totalEncuestados: 10,
+                totalRespuestas: totalRespuestas,
+                respuestasValidas: respuestasValidas,
+                respuestasInvalidas: respuestasInvalidas,
+                porcentajeValidas: porcentajeValidas,
+                porPregunta: porPregunta
+            };
+        }
+
+        // Mostrar estadísticas
+        function verEstadisticas() {
+            const estadisticas = calcularEstadisticas();
+            const container = document.getElementById('estadisticas-container');
+            const resumenContainer = document.getElementById('resumen-estadisticas');
+            const detalleContainer = document.getElementById('detalle-estadisticas');
+            
+            // Mostrar resumen
+            resumenContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">10</div>
+                    <div class="stat-label">Máximo de Encuestas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${encuestados.length}</div>
+                    <div class="stat-label">Encuestas Completadas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${estadisticas.totalRespuestas}</div>
+                    <div class="stat-label">Total Respuestas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${estadisticas.respuestasValidas}</div>
+                    <div class="stat-label">Respuestas Válidas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${estadisticas.respuestasInvalidas}</div>
+                    <div class="stat-label">Respuestas Inválidas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${estadisticas.porcentajeValidas.toFixed(1)}%</div>
+                    <div class="stat-label">Porcentaje Válidas</div>
+                </div>
+            `;
+            
+            // Mostrar lista de encuestados
+            let listaEncuestadosHTML = '<div class="detalle-pregunta"><h4>📋 Lista de Encuestados:</h4>';
+            encuestados.forEach(encuestado => {
+                const respuestasValidas = encuestado.respuestas.filter(r => r.esValida).length;
+                const respuestasInvalidas = encuestado.respuestas.length - respuestasValidas;
+                const porcentajeValido = (respuestasValidas / encuestado.respuestas.length) * 100;
+                
+                listaEncuestadosHTML += `
+                    <div style="margin: 10px 0; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
+                        <strong>${encuestado.nombre}</strong> (ID: ${encuestado.id})<br>
+                        <small>Válidas: ${respuestasValidas}/3 (${porcentajeValido.toFixed(1)}%) | Inválidas: ${respuestasInvalidas}/3</small>
+                    </div>
+                `;
+            });
+            listaEncuestadosHTML += '</div>';
+            
+            // Insertar lista de encuestados al inicio del detalle
+            detalleContainer.innerHTML = listaEncuestadosHTML;
+            
+            // Mostrar detalle por pregunta
+            detalleContainer.innerHTML = '';
+            Object.entries(estadisticas.porPregunta).forEach(([preguntaId, datos]) => {
+                const pregunta = preguntas.find(p => p.id == preguntaId);
+                const detalleDiv = document.createElement('div');
+                detalleDiv.className = 'detalle-pregunta';
+                
+                let distribucionHTML = '';
+                if (datos.validas > 0) {
+                    distribucionHTML = `
+                        <div class="distribucion">
+                            ${Object.entries(datos.opciones).map(([opcion, cantidad]) => {
+                                const porcentaje = (cantidad / datos.validas) * 100;
+                                return `
+                                    <div class="opcion-stat">
+                                        <div class="numero">${cantidad}</div>
+                                        <div class="porcentaje">${opcion} (${porcentaje.toFixed(1)}%)</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+                
+                detalleDiv.innerHTML = `
+                    <h4>Pregunta ${preguntaId}: ${pregunta.texto}</h4>
+                    <p><strong>Respuestas válidas:</strong> ${datos.validas}</p>
+                    <p><strong>Respuestas inválidas:</strong> ${datos.invalidas}</p>
+                    ${distribucionHTML}
+                `;
+                detalleContainer.appendChild(detalleDiv);
+            });
+            
+            container.style.display = 'block';
+        }
+
+        // Reiniciar encuesta
+        function reiniciarEncuesta() {
+            encuestadoActual = 1;
+            respuestas = [];
+            encuestados = [];
+            nombreActual = "";
+            limpiarFormulario();
+            actualizarProgreso();
+            document.getElementById('login-container').style.display = 'block';
+            document.getElementById('encuesta-container').style.display = 'none';
+            document.getElementById('estadisticas-container').style.display = 'none';
+            document.getElementById('nombre-input').value = '';
+            document.getElementById('nombre-input').focus();
+        }
+    </script>
+</body>
+</html> 
